@@ -18,9 +18,14 @@ class Spot:
     def __init__(self, row, col, width, total_rows):
         self.row = row
         self.col = col
+        # position determined by multiplying row number by cube width
         self.x = row * width
         self.y = col * width
+        # all cubes start white
         self.color = WHITE
         self.neighbors = []
         self.width = width
         self.total_rows = total_rows
+
+        def get_pos(self):
+            return self.row, self.col
