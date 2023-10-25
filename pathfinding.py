@@ -52,7 +52,7 @@ class Node:
         return self.color == BLUE
 
     def reset(self):
-        self.color == WHITE
+        self.color = WHITE
 
     def make_closed(self):
         self.color = RED
@@ -77,7 +77,9 @@ class Node:
         pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
 
     def update_neighbors(self, grid):
-        pass
+        self.neighbors = []
+        if self.row < self.total_rows - 1 and not grid[self.row - 1][self.col].is_barrier():
+            self.neighbors.append()
 
     # lt is less than function
     def __lt__(self, other):
@@ -154,7 +156,8 @@ def main(win, width):
                 pos = pygame.mouse.get_pos()
                 row, col = get_clicked_pos(pos, rows, width)
                 spot = grid[row][col]
-                if not start:
+                # make sure can't override start and end
+                if not start and spot != end:
                     start = spot
                     start.make_start()
 
@@ -165,11 +168,20 @@ def main(win, width):
                 elif spot != end and spot != start:
                     spot.make_barrier()
 
-
-
             # if we pressed right mouse button, sth else
             elif pygame.mouse.get_pressed()[2]:
-                pass
+                pos = pygame.mouse.get_pos()
+                row, col = get_clicked_pos(pos, rows, width)
+                spot = grid[row][col]
+                spot.reset()
+                if spot == start:
+                    start = None
+                elif spot == end:
+                    end = None
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and not started:
+
 
     pygame.quit()
 
