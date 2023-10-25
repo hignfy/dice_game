@@ -16,7 +16,7 @@ GREY = (128, 128, 128)
 ORANGE = (255, 165, 0)
 PURPLE = (128,0,128)
 
-class Spot:
+class Node:
     def __init__(self, row, col, width, total_rows):
         self.row = row
         self.col = col
@@ -29,56 +29,59 @@ class Spot:
         self.width = width
         self.total_rows = total_rows
 
-        # get the current position
-        def get_pos(self):
-            return self.row, self.col
+    # get the current position
+    def get_pos(self):
+        return self.row, self.col
 
-        # how to see visually that a cube has been checked
-        def is_closed(self):
-            self.color == RED
+    # how to see visually that a cube has been checked
+    def is_closed(self):
+        self.color == RED
 
-        # how to see that a cube is currently being checked
-        def is_open(self):
-            self.color == GREEN
+    # how to see that a cube is currently being checked
+    def is_open(self):
+        self.color == GREEN
 
-        # what's a barrier?
-        def is_barrier(self):
-            return self.color == BLACK
+    # what's a barrier?
+    def is_barrier(self):
+        return self.color == BLACK
 
-        def is_start(self):
-            return self.color == ORANGE
+    def is_start(self):
+        return self.color == ORANGE
 
-        def is_end(self):
-            return self.color == BLUE
+    def is_end(self):
+        return self.color == BLUE
 
-        def reset(self):
-            self.color == WHITE
+    def reset(self):
+        self.color == WHITE
 
-        def make_closed(self):
-            self.color == RED
+    def make_closed(self):
+        self.color = RED
 
-        def make_open(self):
-            self.color == GREEN
+    def make_open(self):
+        self.color = GREEN
 
-        def make_barrier(self):
-            self.color == BLACK
+    def make_barrier(self):
+        self.color = BLACK
 
-        def make_end(self):
-            self.color == BLUE
+    def make_start(self):
+        self.color = ORANGE
 
-        def make_path(self):
-            self.color == PURPLE
+    def make_end(self):
+        self.color = BLUE
 
-        # draw the cube on the screen
-        def draw(self, win):
-            pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
+    def make_path(self):
+        self.color = PURPLE
 
-        def update_neighbors(self, grid):
-            pass
+    # draw the cube on the screen
+    def draw(self, win):
+        pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
 
-        # lt is less than function
-        def __lt__(self, other):
-            return False
+    def update_neighbors(self, grid):
+        pass
+
+    # lt is less than function
+    def __lt__(self, other):
+        return False
 
 
 def h(p1, p2):
@@ -93,7 +96,7 @@ def make_grid(rows, width):
     for i in range(rows):
         grid.append([])
         for j in range(rows):
-            spot = Spot(i, j, gap, rows)
+            spot = Node(i, j, gap, rows)
             grid[i].append(spot) # lists inside lists that store spots
 
     return grid
@@ -127,4 +130,47 @@ def get_clicked_pos(pos, rows, width):
     return row, col
 
 def main(win, width):
-    
+    rows = 50
+    grid = make_grid(rows, width)
+
+    start = None
+    end = None
+
+    run = True
+    started = False
+    while run:
+        draw(win, grid, rows, width)
+        for event in pygame.event.get():
+            # always check QUIT first
+            if event.type == pygame.QUIT:
+                run = False
+
+            # cannot create barriers while algorithm runs
+            if started:
+                continue
+
+            # if we pressed left mouse button, do something
+            if pygame.mouse.get_pressed()[0]:
+                pos = pygame.mouse.get_pos()
+                row, col = get_clicked_pos(pos, rows, width)
+                spot = grid[row][col]
+                if not start:
+                    start = spot
+                    start.make_start()
+
+                elif not end and spot != start:
+                    end = spot
+                    end.make_end()
+
+                elif spot != end and spot != start:
+                    spot.make_barrier()
+
+
+
+            # if we pressed right mouse button, sth else
+            elif pygame.mouse.get_pressed()[2]:
+                pass
+
+    pygame.quit()
+
+main(WIN, WIDTH)
