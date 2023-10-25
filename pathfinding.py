@@ -77,7 +77,9 @@ class Node:
         pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
 
     def update_neighbors(self, grid):
-        pass
+        self.neighbors = []
+        if self.row < self.total_rows - 1 and not grid[self.row - 1][self.col].is_barrier():
+            self.neighbors.append()
 
     # lt is less than function
     def __lt__(self, other):
@@ -176,6 +178,10 @@ def main(win, width):
                     start = None
                 elif spot == end:
                     end = None
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and not started:
+
 
     pygame.quit()
 
