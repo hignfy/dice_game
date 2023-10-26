@@ -85,10 +85,10 @@ class Node:
         if self.row > 0 and not grid[self.row - 1][self.col].is_barrier(): # up a row
             self.neighbors.append(grid[self.row - 1][self.col])
 
-        if self.row < self.total_rows - 1 and not grid[self.row][self.col + 1].is_barrier(): # right a row
+        if self.col < self.total_rows - 1 and not grid[self.row][self.col + 1].is_barrier(): # right a row
             self.neighbors.append(grid[self.row][self.col + 1])
 
-        if self.row > 0 and not grid[self.row][self.col - 1].is_barrier(): # left a row
+        if self.col > 0 and not grid[self.row][self.col - 1].is_barrier(): # left a row
             self.neighbors.append(grid[self.row][self.col - 1])
 
     # lt is less than function
@@ -246,7 +246,7 @@ def main(win, width):
                 if event.key == pygame.K_SPACE and not started:
                     for row in grid:
                         for spot in row:
-                            spot.update_neighbors()
+                            spot.update_neighbors(grid)
 
                     algorithm(lambda: draw(win, grid, rows, width), grid, start, end)
 
