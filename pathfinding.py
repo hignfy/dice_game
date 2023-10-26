@@ -78,18 +78,81 @@ class Node:
 
     def update_neighbors(self, grid):
         self.neighbors = []
-        if self.row < self.total_rows - 1 and not grid[self.row - 1][self.col].is_barrier():
-            self.neighbors.append()
+        if self.row < self.total_rows - 1 and not grid[self.row + 1][self.col].is_barrier(): # down a row
+            self.neighbors.append(grid[self.row + 1][self.col])
+
+        # make sure we're bigger than zero so we can -1 safely
+        if self.row > 0 and not grid[self.row - 1][self.col].is_barrier(): # up a row
+            self.neighbors.append(grid[self.row - 1][self.col])
+
+        if self.row < self.total_rows - 1 and not grid[self.row][self.col + 1].is_barrier(): # right a row
+            self.neighbors.append(grid[self.row][self.col + 1])
+
+        if self.row > 0 and not grid[self.row][self.col - 1].is_barrier(): # left a row
+            self.neighbors.append(grid[self.row][self.col - 1])
 
     # lt is less than function
     def __lt__(self, other):
         return False
 
-
+# heuristic
 def h(p1, p2):
     x1, y1 = p1
     x2, y2 = p2
     return abs(x1 - x2) + abs(y1 - y2)
+
+def algorithm(draw, grid, start, end):
+    count = 0
+    # get smallest element
+    open_set = PriorityQueue()
+    # API for PQ, add to PQ. Add start node w original F score (which is 0)
+    open_set.put((0, count, start))
+    came_from = {}
+    g_score = {spot: float("inf") for row in grid for spot in row}
+    g_score[start] = 0
+    f_score = {spot: float("inf") for row in grid for spot in row}
+    f_score[start] = h(start.get_pos(), end.get_pos())
+    # make sure when we reach the end, we choose the best path
+
+    # we can access the PQ with a hash
+    open_set_hash = {start}
+
+    # runs until open set empty - considered every possible node
+    while not open_set.empty():
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+        # pop lowest value f score from set
+        current = open_set.get()[2]
+        open_set_hash.remove(current)
+
+        # if current is end we've found the shortest path
+        if current == end:
+            return True # make path
+
+        # consider all neigbours of current node
+        for neighbor in current.neighbors:
+            temp_g_score = g_score[current] + 1
+
+            if temp_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = temp_g_score
+                f_score[neighbor] = temp_g_score + h(neighbor.get_pos(), end.get_pos())
+                if neighbor not in open_set_hash:
+                    count += 1
+                    open_set.put((f_score[neighbor], count, neighbor))
+                    open_set_hash.add(neighbor)
+                    neighbor.make_open()
+
+        draw()
+
+        # make it red and closed, no longer part of open set
+        if current != start:
+            current.make_closed()
+
+    return False # we did not find a path
+
 
 # 2D array
 def make_grid(rows, width):
@@ -181,6 +244,11 @@ def main(win, width):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not started:
+                    for row in grid:
+                        for spot in row:
+                            spot.update_neighbors()
+
+                    algorithm(lambda: draw(win, grid, rows, width), grid, start, end)
 
 
     pygame.quit()
